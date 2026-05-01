@@ -227,6 +227,7 @@ function signed(v, ndig) {
 }
 function snapshotLabel(name) {
   return ({
+    random: 'Random baseline',
     init: 'Init',
     warmup: 'Warmup',
     veryearly: 'Very early',
@@ -455,15 +456,26 @@ async function loadShard(featId) {
   return j;
 }
 
+async function loadSnippets() {
+  if (STATE.snippets) return STATE.snippets;
+  if (STATE.snippetsLoading) return STATE.snippetsLoading;
+  STATE.snippetsLoading = fetch('data/snippets.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(j => { STATE.snippets = j; return j; })
+    .catch(() => null);
+  return STATE.snippetsLoading;
+}
+
 async function showFeature(id) {
   document.getElementById('view-table').classList.add('hidden');
   const v = document.getElementById('view-feature');
   v.classList.remove('hidden');
   v.innerHTML = `<div class="loading">Loading feature ${id}…</div>`;
-  const shard = await loadShard(id);
+  const [shard, snipPayload] = await Promise.all([loadShard(id), loadSnippets()]);
   const f = shard.features[id];
   if (!f) { v.innerHTML = `<div class="loading">Feature ${id} not found.</div>`; return; }
-  v.innerHTML = renderFeature(id, f);
+  const snips = snipPayload?.snippets?.[id] || [];
+  v.innerHTML = renderFeature(id, f, snips, snipPayload?.meta);
   v.querySelectorAll('.neighbor').forEach(el => {
     el.addEventListener('click', () => { location.hash = `feat=${el.dataset.id}`; });
   });
@@ -485,7 +497,7 @@ async function showFeature(id) {
   });
 }
 
-function renderFeature(id, f) {
+function renderFeature(id, f, snips = [], snipMeta = null) {
   const a = STATE.arrs;
   const steps = STATE.steps;
   const peakIdx = steps.indexOf(f.peak_step);
@@ -558,18 +570,20 @@ function renderFeature(id, f) {
       </div>
 
       <div class="section">
-        <h3>Top promoted tokens (W_D · W_U)</h3>
+        <h3>Top promoted tokens (W_D · W_U) <span class="legend">first column = random direction projected through W_U[step=0] (noise floor)</span></h3>
         <div class="tokens-grid">
           ${(STATE.index.meta.token_snapshots || [
-            {name:'init',step:0},{name:'early',step:512},
+            {name:'random',step:0,kind:'random'},{name:'warmup',step:8},{name:'early',step:512},
             {name:'transition',step:1000},{name:'terminal',step:STATE.index.meta.terminal_step}
           ]).map(s => `
-          <div class="tokens-card">
+          <div class="tokens-card${s.kind === 'random' ? ' random-baseline' : ''}">
             <div class="head">${snapshotLabel(s.name)} · step ${s.step.toLocaleString()}</div>
             <table>${tokenRows(f['top_' + s.name] || [])}</table>
           </div>`).join('')}
         </div>
       </div>
+
+      ${snips.length ? renderSnippets(snips, snipMeta) : ''}
 
       <div class="section">
         <h3>Nearest neighbors (cosine on W_D[T])</h3>
@@ -579,6 +593,37 @@ function renderFeature(id, f) {
       </div>
     </div>
   `;
+}
+
+function renderSnippets(snips, meta) {
+  const note = meta
+    ? `score = h_t · W_D[terminal, k] · ${meta.total_tokens.toLocaleString()}-token prototype corpus · ${meta.n_blocks} blocks`
+    : '';
+  // Highlight intensity = (score − threshold) / (peak − threshold), clamped to [0, 1].
+  // Threshold = 35 % of the snippet peak — empirical baseline for h_t · W_D[k].
+  const HL_FLOOR = 0.35;
+  const cards = snips.map(s => {
+    const peakScore = Math.max(...s.scores, 1e-6);
+    const thr = HL_FLOOR * peakScore;
+    const denom = Math.max(peakScore - thr, 1e-6);
+    const peak = s.pos;
+    const html = s.tokens.map((tok, i) => {
+      const sc = s.scores[i];
+      const above = Math.max(0, sc - thr) / denom;
+      const bg = above > 0 ? `background-color: rgba(255,170,40,${(0.85 * above).toFixed(3)});` : '';
+      const cls = i === peak ? 'snip-peak' : '';
+      const display = tok.replace(/\n/g, '↵\n').replace(/\t/g, '⇥');
+      return `<span class="${cls}" style="${bg}" title="score=${sc.toFixed(2)}">${escapeHtml(display)}</span>`;
+    }).join('');
+    return `<div class="snip-card">
+      <div class="snip-head"><span class="snip-score">peak ${s.score.toFixed(2)}</span></div>
+      <pre class="snip-text">${html}</pre>
+    </div>`;
+  }).join('');
+  return `<div class="section">
+    <h3>Top-activating snippets <span class="legend">${escapeHtml(note)}</span></h3>
+    <div class="snip-grid">${cards}</div>
+  </div>`;
 }
 
 // Inline-SVG sparkline. xs: step values, ys: same length. peakIdx: optional marker.
