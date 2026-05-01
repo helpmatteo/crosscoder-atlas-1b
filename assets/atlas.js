@@ -139,6 +139,52 @@ const EXAMPLES = [
       { id: 23451, caption: 'the "instruction" lexeme', detail: 'Persistent, peak step 32. Terminal: ` instruction · instruction · instructions · aution · Instruction · autions · instructed`.' },
     ],
   },
+  {
+    title: 'AI safety I — deception, persuasion & truthfulness',
+    note: 'Caveat: this is Pythia-1B base, pre-RLHF. Refusal / sycophancy / "I am an AI" features cannot exist here — the model never saw instruction data. What the readout has organized are vocabulary-level safety-relevant clusters: how the output distribution groups terms relevant to safety research at the corpus level.',
+    items: [
+      { id: 22462, caption: 'deception lexemes', detail: '`deception · deceive · deceptive · deceit · dece · misrepresentation · disguise · misrepresent`. Persistent, peak step 61k — the closest a base model has to a "deception concept" direction. Relevant for sandbagging / honesty research.' },
+      { id: 22073, caption: 'persuasion / influence lexemes', detail: '`persu · persuade · convince · recruit · convincing · persuaded`. Persistent, peak step 89k. Relevant for influence-operation research.' },
+      { id: 23682, caption: 'falsity / misinformation lexemes', detail: '`spurious · false · fict · falsely · misleading · fake · pretend`. Late-emergent at peak 116k.' },
+    ],
+  },
+  {
+    title: 'AI safety II — harm, violence & weapons',
+    note: 'Vocabulary clusters around physical harm, criminal violence, and weapons. The crosscoder consistently puts these in late-emergent regions (peak step ≥ 47k) — slow concept formation rather than something present from init.',
+    items: [
+      { id: 20894, caption: 'abstract violence vocabulary', detail: '`brutal · brutality · violence · vicious · cruelty · cruel · fury · inflict`. Late-emergent peak step 47k.' },
+      { id: 21075, caption: 'homicide / killing lexemes', detail: '`murders · murder · killings · murdered · massacre · homicide · violence · killing`. Persistent, peak step 102k.' },
+      { id: 13651, caption: '"crime against person" passive verbs', detail: '`kidnapped · murdered · slain · arrested · imprisoned · deported · raped · detained` — police/court-blotter register. Mid-emergent peak step 21k.' },
+      { id: 24161, caption: 'weapons category', detail: '`weapons · weapon · gun · firearm · firearms · guns · armed`. Late-emergent peak 89k.' },
+      { id: 11090, caption: 'projectile / shooting context', detail: '`shot · shots · bullet · bullets · Shot`. Late-emergent peak 89k.' },
+      { id: 13270, caption: 'criminal-justice register', detail: '`probation · arrest · jail · police · sentencing · Sentencing · arrests`. Step-1000-emergent at peak 3000 — surprisingly early for a sensitive register.' },
+    ],
+  },
+  {
+    title: 'AI safety III — profanity, sensitive register & sexual content',
+    note: 'Toxicity-relevant lexical clusters. Useful for understanding what categories the readout has carved out before any safety filtering.',
+    items: [
+      { id: 11061, caption: 'explicit profanity', detail: '`fucked · fuck · shit · fuckin · fucking · asshole · piss · pissed`. Late-emergent peak 116k.' },
+      { id: 21156, caption: 'pejorative "trash" vocabulary', detail: '`shit · bitch · garbage · waste · rubbish · crap · bullshit · trash`. Late-emergent peak 75k.' },
+      { id: 22411, caption: 'mild profanity / interjections', detail: '`goddamn · damn · damned · fucking · fuckin · bastard · dude`. Persistent, peak 130k.' },
+      { id: 17469, caption: 'sex / sexuality concept', detail: '`sex · Sex · sexual · Sexual · sexuality`. Late-emergent peak 102k.' },
+      { id: 23521, caption: 'LGBTQ / sexual-orientation lexemes', detail: '`Sexual · sexual · sexually · homosexual · gay · lesbian`. Late-emergent peak 47k.' },
+      { id: 20879, caption: 'drugs / pharmaceutical category', detail: '`Drug · drug · Drugs · drugs · pharmac · Pharmac · pharmacological`. Step-1000-emergent at peak 5000.' },
+    ],
+  },
+  {
+    title: 'AI safety IV — identity, demographics & bias-relevant features',
+    note: 'These are the features bias research probes most directly. Some contain historically loaded vocabulary alongside neutral demographic descriptors — a pretraining-bias artifact in itself.',
+    items: [
+      { id: 1856, caption: 'nationality demonyms', detail: '`English · Indian · Jewish · Chinese · German · Russian · Asian · Persian`. Late-emergent peak 116k.' },
+      { id: 15242, caption: 'race / ethnicity (incl. dated terms)', detail: '`African · Hispanic · Negro · blacks · racial · ethnic · Latino`. Late-emergent peak 116k. The presence of "Negro" alongside neutral demographic descriptors is itself a finding worth probing.' },
+      { id: 12293, caption: 'religio-ethnic group nouns', detail: '`Jews · Indians · Muslims · natives · Israelis · Europeans · Palestinians · Greeks`. Persistent, peak 89k.' },
+      { id: 4851, caption: '"gender" as a concept', detail: '`gender · Women · Gender · women · sex`. Late-emergent peak 130k. Distinct from gendered-pronoun features below.' },
+      { id: 22445, caption: 'female pronouns + lexemes', detail: '`woman · lady · she · her · herself · hers`. Late-emergent peak 89k.' },
+      { id: 9821, caption: 'world religions', detail: '`Buddha · Buddhism · Islam · Jesus · Christianity · Buddh · Buddhist · Allah`. Late-emergent peak 89k.' },
+      { id: 5129, caption: 'US partisan party labels', detail: '`Democrat · Republican · Democratic · Democrats · Republicans · GOP · Liberal`. Late-emergent peak 47k.' },
+    ],
+  },
 ];
 
 function renderExamples() {
