@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>1B Crosscoder Atlas</title>
+  <link rel="stylesheet" href="assets/atlas.css">
+</head>
+<body>
+  <header class="bar">
+    <h1>1B Crosscoder Atlas</h1>
+    <span class="meta"></span>
+    <nav>
+      <button onclick="location.hash=''">Table</button>
+      <button onclick="location.hash='examples'">Examples</button>
+      <a href="data/feature_table.csv" download style="font-size:12px">CSV</a>
+      <a href="data/index.json" download style="font-size:12px">JSON</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-table">
+      <div class="filters">
+        <label>lifecycle <select id="f-lifecycle"></select></label>
+        <label>alive at end
+          <select id="f-alive">
+            <option value="">(any)</option>
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+          </select>
+        </label>
+        <label>peak step ≥ <input id="f-peak-min" type="number" min="0" placeholder="—" style="width:90px"></label>
+        <label>peak step ≤ <input id="f-peak-max" type="number" min="0" placeholder="—" style="width:90px"></label>
+        <label>rate(T) ≥ <input id="f-rate-min" type="number" step="0.001" placeholder="—" style="width:80px"></label>
+        <label>top-token contains <input id="f-token" type="text" placeholder="e.g. the" style="width:120px"></label>
+        <label>jump to feature <input id="f-jump" type="number" min="0" placeholder="id" style="width:80px"></label>
+        <span class="stats"></span>
+      </div>
+      <div class="table-wrap">
+        <div class="thead"></div>
+        <div class="viewport">
+          <div class="spacer"></div>
+          <div class="rows"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-examples" class="hidden"></section>
+    <section id="view-feature" class="hidden"></section>
+  </main>
+
+  <script src="assets/atlas.js"></script>
+</body>
+</html>
