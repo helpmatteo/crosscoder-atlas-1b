@@ -569,7 +569,7 @@ function renderFeature(id, f, snips = [], snipMeta = null) {
         </div>
       </div>
 
-      ${snips.length ? renderSnippets(snips, snipMeta) : ''}
+      ${snips.length ? renderSnippets(id, snips, snipMeta) : ''}
 
       <div class="section">
         <h3>Nearest neighbors (cosine on W_D[T])</h3>
@@ -581,33 +581,51 @@ function renderFeature(id, f, snips = [], snipMeta = null) {
   `;
 }
 
-function renderSnippets(snips, meta) {
+function renderSnippets(id, snips, meta) {
+  // Per-feature corpus stats: μ_k, σ_k of (h_t · W_D[terminal, k]) over every position.
+  // z_t = (s_t − μ_k) / σ_k;  opacity = clamp((z − 1.5) / 2.5, 0, 1).
+  const mu = meta?.mean?.[id] ?? 0;
+  const sd = meta?.std?.[id] ?? 1;
+  const peakZ = snips.length ? (snips[0].score - mu) / sd : 0;
+  // If even the strongest snippet is below z=1.0, the corpus didn't surface anything
+  // meaningful for this feature — suppress the section entirely rather than mislead.
+  if (peakZ < 1.0) {
+    return `<div class="section">
+      <h3>Top-activating snippets <span class="legend">peak z = ${peakZ.toFixed(2)} — feature did not fire above corpus baseline</span></h3>
+      <div class="snip-empty">No tokens in the scoring corpus crossed z = 1 for this feature. The feature's preferred tokens may be rare in the corpus, or the direction may not align cleanly with residual-stream activations.</div>
+    </div>`;
+  }
   const note = meta
-    ? `score = h_t · W_D[terminal, k] · ${meta.total_tokens.toLocaleString()}-token prototype corpus · ${meta.n_blocks} blocks`
+    ? `${meta.total_tokens.toLocaleString()}-token corpus · μ=${mu.toFixed(2)} σ=${sd.toFixed(2)} · opacity = z-score (≥1.5 lights up, ≥4 full)`
     : '';
-  // Highlight intensity = (score − threshold) / (peak − threshold), clamped to [0, 1].
-  // Threshold = 35 % of the snippet peak — empirical baseline for h_t · W_D[k].
-  const HL_FLOOR = 0.35;
   const cards = snips.map(s => {
-    const peakScore = Math.max(...s.scores, 1e-6);
-    const thr = HL_FLOOR * peakScore;
-    const denom = Math.max(peakScore - thr, 1e-6);
-    const peak = s.pos;
+    const peakIdx = s.pos;
     const html = s.tokens.map((tok, i) => {
       const sc = s.scores[i];
-      const above = Math.max(0, sc - thr) / denom;
-      const bg = above > 0 ? `background-color: rgba(255,170,40,${(0.85 * above).toFixed(3)});` : '';
-      const cls = i === peak ? 'snip-peak' : '';
+      const z = (sc - mu) / sd;
+      const op = Math.min(1, Math.max(0, (z - 1.5) / 2.5));
+      const bg = op > 0 ? `background-color: rgba(255,170,40,${(0.85 * op).toFixed(3)});` : '';
+      const cls = i === peakIdx ? 'snip-peak' : '';
       const display = tok.replace(/\n/g, '↵\n').replace(/\t/g, '⇥');
-      return `<span class="${cls}" style="${bg}" title="score=${sc.toFixed(2)}">${escapeHtml(display)}</span>`;
+      const nextTok = i + 1 < s.tokens.length ? s.tokens[i + 1] : '';
+      const tip = `score = ${sc.toFixed(2)}
+z = ${z.toFixed(2)}
+token = ${JSON.stringify(tok)}
+next = ${JSON.stringify(nextTok)}`;
+      return `<span class="${cls}" style="${bg}" title="${escapeHtml(tip)}">${escapeHtml(display)}</span>`;
     }).join('');
+    const z = (s.score - mu) / sd;
     return `<div class="snip-card">
-      <div class="snip-head"><span class="snip-score">peak ${s.score.toFixed(2)}</span></div>
+      <div class="snip-head"><span class="snip-score">peak score ${s.score.toFixed(2)}  ·  z ${z.toFixed(2)}</span></div>
       <pre class="snip-text">${html}</pre>
     </div>`;
   }).join('');
   return `<div class="section">
     <h3>Top-activating snippets <span class="legend">${escapeHtml(note)}</span></h3>
+    <details class="snip-help"><summary>How to read</summary>
+      <p><b>Position semantics.</b> Pythia is autoregressive: the residual stream at position <i>t</i> predicts position <i>t+1</i>. A feature whose preferred tokens are <i>X</i> fires on the token <b>before</b> <i>X</i>. Hover a highlight — <code>next = …</code> in the tooltip shows the token the highlight is gating.</p>
+      <p><b>Scoring.</b> <code>score = h_t · W_D[terminal, k]</code>; <code>z = (score − μ_k) / σ_k</code> against this corpus. Color = z-score (lights up at z≥1.5, full at z≥4).</p>
+    </details>
     <div class="snip-grid">${cards}</div>
   </div>`;
 }

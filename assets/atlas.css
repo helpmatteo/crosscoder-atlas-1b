@@ -180,6 +180,12 @@ main { padding: 12px 16px 32px; }
   word-break: break-word;
 }
 .snip-text .snip-peak { outline: 2px solid #b34a00; outline-offset: -1px; }
+.snip-empty { padding: 12px; font-size: 12px; color: var(--muted); background: #fafafa; border: 1px dashed var(--line-strong); border-radius: 4px; }
+.snip-help { margin: 4px 0 8px; font-size: 12px; color: var(--muted); }
+.snip-help summary { cursor: pointer; user-select: none; padding: 2px 0; }
+.snip-help summary:hover { color: var(--accent); }
+.snip-help p { margin: 6px 0; max-width: 760px; line-height: 1.5; }
+.snip-help code { font-family: "SF Mono", Menlo, Consolas, monospace; background: var(--code-bg); padding: 0 4px; border-radius: 2px; }
 
 /* Examples tab */
 .examples-view { max-width: 1100px; }
