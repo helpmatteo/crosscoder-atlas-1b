@@ -161,28 +161,14 @@ const EXAMPLES = [
     ],
   },
   {
-    title: 'AI safety III — profanity, sensitive register & sexual content',
-    note: 'Toxicity-relevant lexical clusters. Useful for understanding what categories the readout has carved out before any safety filtering.',
-    items: [
-      { id: 11061, caption: 'explicit profanity', detail: '`fucked · fuck · shit · fuckin · fucking · asshole · piss · pissed`. Late-emergent peak 116k.' },
-      { id: 21156, caption: 'pejorative "trash" vocabulary', detail: '`shit · bitch · garbage · waste · rubbish · crap · bullshit · trash`. Late-emergent peak 75k.' },
-      { id: 22411, caption: 'mild profanity / interjections', detail: '`goddamn · damn · damned · fucking · fuckin · bastard · dude`. Persistent, peak 130k.' },
-      { id: 17469, caption: 'sex / sexuality concept', detail: '`sex · Sex · sexual · Sexual · sexuality`. Late-emergent peak 102k.' },
-      { id: 23521, caption: 'LGBTQ / sexual-orientation lexemes', detail: '`Sexual · sexual · sexually · homosexual · gay · lesbian`. Late-emergent peak 47k.' },
-      { id: 20879, caption: 'drugs / pharmaceutical category', detail: '`Drug · drug · Drugs · drugs · pharmac · Pharmac · pharmacological`. Step-1000-emergent at peak 5000.' },
-    ],
-  },
-  {
-    title: 'AI safety IV — identity, demographics & bias-relevant features',
-    note: 'These are the features bias research probes most directly. Some contain historically loaded vocabulary alongside neutral demographic descriptors — a pretraining-bias artifact in itself.',
+    title: 'AI safety III — identity & demographic features',
+    note: 'Demographic-vocabulary clusters relevant to bias research. We deliberately omit features whose top tokens contain slurs, profanity, or sexually explicit lexemes — those exist in the atlas but we do not surface them in the curated tab.',
     items: [
       { id: 1856, caption: 'nationality demonyms', detail: '`English · Indian · Jewish · Chinese · German · Russian · Asian · Persian`. Late-emergent peak 116k.' },
-      { id: 15242, caption: 'race / ethnicity (incl. dated terms)', detail: '`African · Hispanic · Negro · blacks · racial · ethnic · Latino`. Late-emergent peak 116k. The presence of "Negro" alongside neutral demographic descriptors is itself a finding worth probing.' },
       { id: 12293, caption: 'religio-ethnic group nouns', detail: '`Jews · Indians · Muslims · natives · Israelis · Europeans · Palestinians · Greeks`. Persistent, peak 89k.' },
-      { id: 4851, caption: '"gender" as a concept', detail: '`gender · Women · Gender · women · sex`. Late-emergent peak 130k. Distinct from gendered-pronoun features below.' },
+      { id: 4851, caption: '"gender" as a concept', detail: '`gender · Women · Gender · women · sex`. Late-emergent peak 130k.' },
       { id: 22445, caption: 'female pronouns + lexemes', detail: '`woman · lady · she · her · herself · hers`. Late-emergent peak 89k.' },
       { id: 9821, caption: 'world religions', detail: '`Buddha · Buddhism · Islam · Jesus · Christianity · Buddh · Buddhist · Allah`. Late-emergent peak 89k.' },
-      { id: 5129, caption: 'US partisan party labels', detail: '`Democrat · Republican · Democratic · Democrats · Republicans · GOP · Liberal`. Late-emergent peak 47k.' },
     ],
   },
 ];
