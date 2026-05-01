@@ -556,10 +556,10 @@ function renderFeature(id, f, snips = [], snipMeta = null) {
       </div>
 
       <div class="section">
-        <h3>Top promoted tokens (W_D · W_U) <span class="legend">first column = random direction projected through W_U[step=0] (noise floor)</span></h3>
+        <h3>Top promoted tokens (W_D · W_U) <span class="legend">leftmost column is the noise-floor baseline (random direction × W_U[step=0]); the next column uses the LEARNED decoder direction at the same step. Compare the two to see the shared-feature-index artifact at init.</span></h3>
         <div class="tokens-grid">
           ${(STATE.index.meta.token_snapshots || [
-            {name:'random',step:0,kind:'random'},{name:'warmup',step:8},{name:'early',step:512},
+            {name:'random',step:0,kind:'random'},{name:'init',step:0},{name:'warmup',step:8},{name:'early',step:512},
             {name:'transition',step:1000},{name:'terminal',step:STATE.index.meta.terminal_step}
           ]).map(s => `
           <div class="tokens-card${s.kind === 'random' ? ' random-baseline' : ''}">
